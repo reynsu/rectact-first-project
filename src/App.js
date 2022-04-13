@@ -1,60 +1,49 @@
-import { Component } from "react";
+// import { Component } from "react";
+import { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import CardList from "./components/card-list/card-list.component";
 import "./App.css";
 import SearchBox from "./components/search-box/search-box.component";
 
-class App extends Component {
-  // Constructor method for instasiated the state
-  constructor() {
-    super();
-    this.state = {
-      monster: [],
-      searchField: "",
-    };
-  }
+// Functional Componentes
+const App = () => {
+  const [searchField, setsearchField] = useState(""); // [value, setvalue]
+  const [monster, setMonster] = useState([]);
+  const [filteredMonster, setFilteredMonster] = useState([]);
 
-  // Cada vez que tengamos un class-componente que necesita datos que provienen de API y necesitan ser mostrados pueden ser introducidos dentro de un componentDidMount() => life-cycle-method.
-  componentDidMount() {
-    // console.log("componentDidMount");
+  useEffect(() => {
+    console.log("effect fired");
     fetch("https://jsonplaceholder.typicode.com/users")
       .then((response) => response.json())
-      .then((user) =>
-        this.setState(() => {
-          return { monster: user };
-        })
-      );
-  }
+      .then((user) => {
+        setMonster(user);
+      });
+  }, []);
 
-  onSearchChange = (event) => {
-    const searchField = event.target.value.toLocaleLowerCase();
-    this.setState(() => {
-      return { searchField };
-    });
-  };
-
-  render() {
-    // const startingArray = this.state.monster;
-    const { monster, searchField } = this.state;
-    const { onSearchChange } = this;
-    const filteredMonster = monster.filter((monsterName) =>
+  useEffect(() => {
+    const newFilteredMonster = monster.filter((monsterName) =>
       monsterName.name.toLowerCase().includes(searchField)
     );
+    setFilteredMonster(newFilteredMonster);
+  }, [monster, searchField]);
 
-    // console.log("render");
-    return (
-      <div className="App">
-        <h1 className="app-title">Monsters Rolodex</h1>
-        <SearchBox
-          onChangeHandler={onSearchChange}
-          placeholder="search monster"
-          className="search-box"
-        />
-        <CardList monsters={filteredMonster} />
-      </div>
-    );
-  }
-}
+  const onSearchChange = (event) => {
+    const searchFieldString = event.target.value.toLocaleLowerCase();
+    setsearchField(searchFieldString);
+  };
+
+  return (
+    <div className="App">
+      <h1 className="app-title">Monsters Rolodex</h1>
+      <SearchBox
+        onChangeHandler={onSearchChange}
+        placeholder="search monster"
+        className="search-box"
+      />
+      {<CardList monsters={filteredMonster} />}
+    </div>
+  );
+};
 
 export default App;
 
@@ -85,5 +74,22 @@ Unsing class-component:
  - los componentes son renderizados bajo dos condiciones:
   - cuando setState() es llamado
   - cuando props es actualizado
+
+*/
+
+/* 
+- Una funcion es considerada pura si su resultado solo depende de los argumentos que le estoy pasando y no de otros valores externos. En caso contrario se dice que la funcion es inpura.
+
+- Adicionalmente una funcion es pura si no crea un efecto fuera de su scope. Como por ejemplo cambiar el valor de una variable declarada fuera del scope de la funcion.
+
+- En React usaremos hoocks para escribir funciones impuras para escribir los componentes.
+
+*/
+
+/*
+useEffect toma dos argumentos:
+
+  - useEffect(()=> {callback function}, [array of dependences]) 
+  - si queremos que la callback function se ejecute solo una vez dejamos vacio el array.
 
 */
